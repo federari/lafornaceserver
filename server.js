@@ -45,6 +45,7 @@ app.post('/api/articoli', (req, res) => {
             }
             res.json({ message: 'Articolo aggiunto con successo.' });
         });
+        console.log(`è stato aggiunto l'articolo: ${nuovoArticolo}`);
     });
 });
 
