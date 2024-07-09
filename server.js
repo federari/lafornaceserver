@@ -1,17 +1,21 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const cors = require('cors'); // Importa il pacchetto cors
+const cors = require('cors');
+const http = require('http'); // Importa il modulo http
+
 const app = express();
-const PORT = process.env.PORT || 2345;
+const PORT = process.env.PORT || 3000;
 
 // Abilita CORS per tutte le richieste
 app.use(cors());
 
 app.use(express.json());
 
+// Percorso per il file JSON
 const filePath = path.join(__dirname, 'data', 'articoli.json');
 
+// API per ottenere gli articoli
 app.get('/api/articoli', (req, res) => {
     fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
@@ -22,6 +26,7 @@ app.get('/api/articoli', (req, res) => {
     });
 });
 
+// API per aggiungere un articolo
 app.post('/api/articoli', (req, res) => {
     const { articolo } = req.body;
     if (!articolo) {
@@ -43,6 +48,7 @@ app.post('/api/articoli', (req, res) => {
     });
 });
 
+// API per cancellare tutti gli articoli
 app.delete('/api/articoli', (req, res) => {
     fs.writeFile(filePath, JSON.stringify([]), 'utf8', (err) => {
         if (err) {
@@ -52,6 +58,10 @@ app.delete('/api/articoli', (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
+// Crea il server HTTP
+const server = http.createServer(app);
+
+// Avvio del server
+server.listen(PORT, () => {
     console.log(`Server avviato su http://localhost:${PORT}`);
 });
