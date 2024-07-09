@@ -8,9 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Abilita CORS per tutte le richieste
-app.use(cors({
-    origin: 'https://lafornace.netlify.app'
-}));
+app.use(cors());
 
 app.use(express.json());
 
