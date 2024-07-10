@@ -6,10 +6,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Configura Firebase Admin
-const serviceAccount = require(path.join(__dirname, 'seventh-tempest-429007-t0-firebase-adminsdk-gy4gf-559ee77121.json')); // Sostituisci con il percorso del tuo file di chiave JSON
+const serviceAccount = require(path.join(__dirname, 'server-92e0a-firebase-adminsdk-a2ktf-ba78913c4e.json')); // Sostituisci con il percorso del tuo file di chiave JSON
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  projectId: 'seventh-tempest-429007-t0' // Sostituisci con il tuo Project ID
+  projectId: 'server-92e0a' // Sostituisci con il tuo Project ID
 });
 const db = admin.firestore();
 
