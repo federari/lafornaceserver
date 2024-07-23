@@ -1,0 +1,23 @@
+{
+  "name": "serverlafornace",
+  "version": "1.0.0",
+  "description": "A simple Node.js server to serve JSON data and static files.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "author": "Your Name",
+  "license": "ISC",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/federari/lafornaceserver.git"
+  },
+  "bugs": {
+    "url": "https://github.com/federari/lafornaceserver/issues"
+  },
+  "homepage": "https://github.com/federari/lafornaceserver#readme"
+}
