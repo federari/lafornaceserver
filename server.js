@@ -6,6 +6,19 @@ const hostname = '0.0.0.0';
 const port = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', 'https://lafornace.netlify.app');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
+    if (req.method === 'OPTIONS') {
+        // Handle preflight request
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
     if (req.method === 'GET' && req.url === '/data') {
         const filePath = path.join(__dirname, 'data.json');
         fs.readFile(filePath, (err, data) => {
