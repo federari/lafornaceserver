@@ -19,5 +19,6 @@
   "bugs": {
     "url": "https://github.com/federari/lafornaceserver/issues"
   },
-  "homepage": "https://github.com/federari/lafornaceserver#readme"
+  "homepage": "https://github.com/federari/lafornaceserver#readme",
+  "keywords": []
 }
