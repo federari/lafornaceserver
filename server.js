@@ -26,29 +26,6 @@ app.get('/api/articoli', (req, res) => {
     });
 });
 
-// API per aggiungere un articolo
-app.post('/api/articoli', (req, res) => {
-    const { articolo } = req.body;
-    if (!articolo) {
-        return res.status(400).json({ error: 'Articolo mancante nel corpo della richiesta.' });
-    }
-
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            return res.status(500).json({ error: 'Errore nel leggere gli articoli.' });
-        }
-        const articoli = JSON.parse(data);
-        articoli.push(articolo);
-        fs.writeFile(filePath, JSON.stringify(articoli), 'utf8', (err) => {
-            if (err) {
-                return res.status(500).json({ error: 'Errore nel salvare l\'articolo.' });
-            }
-            res.json({ message: 'Articolo aggiunto con successo.' });
-        });
-        console.log(`è stato aggiunto l'articolo: ${nuovoArticolo}`);
-    });
-});
-
 // API per cancellare tutti gli articoli
 app.delete('/api/articoli', (req, res) => {
     fs.writeFile(filePath, JSON.stringify([]), 'utf8', (err) => {
