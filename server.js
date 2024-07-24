@@ -1,44 +1,64 @@
 const http = require('http');
-const fs = require('fs');
+const admin = require('firebase-admin');
 const path = require('path');
 
-const hostname = '0.0.0.0';
+// Inizializza l'app Firebase
+const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
 const port = process.env.PORT || 3000;
 
-const server = http.createServer((req, res) => {
-    // Set CORS headers
+// Configura CORS
+const setCorsHeaders = (res) => {
     res.setHeader('Access-Control-Allow-Origin', 'https://lafornace.netlify.app');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
+};
 
+const requestHandler = async (req, res) => {
     if (req.method === 'OPTIONS') {
-        // Handle preflight request
+        setCorsHeaders(res);
         res.writeHead(204);
         res.end();
         return;
     }
 
-    if (req.method === 'GET' && req.url === '/data') {
-        const filePath = path.join(__dirname, 'data.json');
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-                res.statusCode = 500;
-                res.setHeader('Content-Type', 'text/plain');
-                res.end('Error reading data file');
+    if (req.url === '/data' && req.method === 'GET') {
+        setCorsHeaders(res);
+        try {
+            const articlesRef = db.collection('articles');
+            const snapshot = await articlesRef.get();
+            if (snapshot.empty) {
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'No articles found' }));
                 return;
             }
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.end(data);
-        });
+
+            let articles = [];
+            snapshot.forEach(doc => {
+                articles.push(doc.data());
+            });
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(articles));
+        } catch (error) {
+            console.error('Error getting documents: ', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Error getting articles' }));
+        }
     } else {
-        res.statusCode = 404;
-        res.setHeader('Content-Type', 'text/plain');
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
     }
-});
+};
 
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
+const server = http.createServer(requestHandler);
+
+server.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });

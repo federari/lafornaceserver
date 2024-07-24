@@ -7,11 +7,15 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "crypto": "^1.0.1",
+    "express": "^4.17.1",
+    "firebase-admin": "^12.2.0"
   },
   "author": "Your Name",
   "license": "ISC",
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.14.12"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/federari/lafornaceserver.git"
