@@ -4,7 +4,6 @@ const admin = require('firebase-admin');
 const path = require('path');
 
 // Inizializza l'app Firebase
-
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
@@ -53,6 +52,24 @@ const requestHandler = async (req, res) => {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Error getting articles' }));
         }
+    } else if (req.url === '/upload' && req.method === 'POST') {
+        setCorsHeaders(res);
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(body);
+                await db.collection('articles').add(data);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true }));
+            } catch (error) {
+                console.error('Error saving document: ', error);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Error saving article' }));
+            }
+        });
     } else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
