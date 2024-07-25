@@ -61,6 +61,16 @@ const requestHandler = async (req, res) => {
         req.on('end', async () => {
             try {
                 const data = JSON.parse(body);
+                const correctPassword = process.env.PASSWORD;  // Questa dovrebbe essere gestita in modo più sicuro
+
+                if (data.password !== correctPassword) {
+                    res.writeHead(401, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Password errata' }));
+                    return;
+                }
+
+                delete data.password;  // Rimuovi la password dai dati salvati
+
                 await db.collection('articles').add(data);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ success: true }));
@@ -81,4 +91,3 @@ const server = http.createServer(requestHandler);
 server.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
-
