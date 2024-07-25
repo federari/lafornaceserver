@@ -33,7 +33,7 @@ const requestHandler = async (req, res) => {
         setCorsHeaders(res);
         try {
             const articlesRef = db.collection('articles');
-            const snapshot = await articlesRef.orderBy('giornata', 'desc').get();
+            const snapshot = await articlesRef.orderBy('giornata', 'asc').get();
             if (snapshot.empty) {
                 res.writeHead(404, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: 'No articles found' }));
