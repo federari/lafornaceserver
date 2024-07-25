@@ -1,60 +1,67 @@
+const http = require('http');
 require('dotenv').config();
 const admin = require('firebase-admin');
-const http = require('http');
-const hostname = '0.0.0.0';
-const port = process.env.PORT || 3000;
+const path = require('path');
 
-try {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+// Inizializza l'app Firebase
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-} catch (error) {
-  console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT", error);
-  process.exit(1);
-}
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 const db = admin.firestore();
+const port = process.env.PORT || 3000;
 
-const server = http.createServer((req, res) => {
-    if (req.method === 'GET' && req.url === '/data') {
-        db.collection('articoli').get()
-            .then(snapshot => {
-                const data = snapshot.docs.map(doc => doc.data());
-                res.setHeader('Content-Type', 'application/json');
-                res.setHeader('Access-Control-Allow-Origin', '*');
-                res.end(JSON.stringify(data));
-            })
-            .catch(error => {
-                res.statusCode = 500;
-                res.end('Error getting documents: ' + error);
-            });
-    } else if (req.method === 'POST' && req.url === '/upload') {
-        let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', () => {
-            const data = JSON.parse(body);
+// Configura CORS
+const setCorsHeaders = (res) => {
+    res.setHeader('Access-Control-Allow-Origin', 'https://lafornace.netlify.app');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+};
 
-            db.collection('articoli').add(data)
-                .then(() => {
-                    res.setHeader('Content-Type', 'application/json');
-                    res.setHeader('Access-Control-Allow-Origin', '*');
-                    res.end(JSON.stringify({ success: true }));
-                })
-                .catch(error => {
-                    res.statusCode = 500;
-                    res.end(JSON.stringify({ success: false, error: error.message }));
-                });
-        });
-    } else {
-        res.statusCode = 404;
+const requestHandler = async (req, res) => {
+    if (req.method === 'OPTIONS') {
+        setCorsHeaders(res);
+        res.writeHead(204);
         res.end();
+        return;
     }
+
+    if (req.url === '/data' && req.method === 'GET') {
+        setCorsHeaders(res);
+        try {
+            const articlesRef = db.collection('articles');
+            const snapshot = await articlesRef.get();
+            if (snapshot.empty) {
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'No articles found' }));
+                return;
+            }
+
+            let articles = [];
+            snapshot.forEach(doc => {
+                articles.push(doc.data());
+            });
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(articles));
+        } catch (error) {
+            console.error('Error getting documents: ', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Error getting articles' }));
+        }
+    } else {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Not Found');
+    }
+};
+
+const server = http.createServer(requestHandler);
+
+server.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
 
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
-});
