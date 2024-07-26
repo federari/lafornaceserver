@@ -58,6 +58,7 @@ const requestHandler = async (req, res) => {
         req.on('data', chunk => {
             body += chunk.toString();
         });
+        console.log(body);
         req.on('end', async () => {
             try {
                 const data = JSON.parse(body);
