@@ -80,6 +80,35 @@ const requestHandler = async (req, res) => {
                 res.end(JSON.stringify({ error: 'Error saving article' }));
             }
         });
+    } else if (req.url === '/search' && req.method === 'POST') {
+        setCorsHeaders(res);
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(body);
+                const query = data.query.toLowerCase();
+                const articlesRef = db.collection('articles');
+                const snapshot = await articlesRef.get();
+
+                let results = [];
+                snapshot.forEach(doc => {
+                    const article = doc.data();
+                    if (article.title.toLowerCase().includes(query) || article.content.toLowerCase().includes(query)) {
+                        results.push(article);
+                    }
+                });
+
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(results));
+            } catch (error) {
+                console.error('Error searching documents: ', error);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Error searching articles' }));
+            }
+        });
     } else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
