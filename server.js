@@ -91,18 +91,23 @@ const requestHandler = async (req, res) => {
             try {
                 const data = JSON.parse(body);
                 const query = data.query.toLowerCase();
+                console.log(`Received search query: ${query}`); // Log query
                 const articlesRef = db.collection('articles');
                 const snapshot = await articlesRef.get();
 
                 let results = [];
                 snapshot.forEach(doc => {
                     const article = doc.data();
-                    if (article.title.toLowerCase().includes(query) || article.content.toLowerCase().includes(query)) {
+                    const titolo = article.titolo || '';
+                    const descrizione = article.descrizione || '';
+
+                    if (titolo.toLowerCase().includes(query) || descrizione.toLowerCase().includes(query)) {
                         results.push(article);
                     }
                 });
 
                 res.writeHead(200, { 'Content-Type': 'application/json' });
+                console.log(`Search results: ${JSON.stringify(results)}`); // Log results
                 res.end(JSON.stringify(results));
             } catch (error) {
                 console.error('Error searching documents: ', error);
