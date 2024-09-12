@@ -115,6 +115,26 @@ const requestHandler = async (req, res) => {
                 res.end(JSON.stringify({ error: 'Error searching articles' }));
             }
         });
+    } else if (req.url === '/prenota' && req.method === 'POST') {
+        setCorsHeaders(res);
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        console.log(body);
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(body);
+
+                await db.collection('prenotazioni').add(data);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true }));
+            } catch (error) {
+                console.error('Error saving document: ', error);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Error saving prenotation' }));
+            }
+        });
     } else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
