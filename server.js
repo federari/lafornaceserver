@@ -135,6 +135,29 @@ const requestHandler = async (req, res) => {
                 res.end(JSON.stringify({ error: 'Error saving prenotation' }));
             }
         });
+    }else if (req.url === '/prenotazioni' && req.method === 'GET') {
+        setCorsHeaders(res);
+        try {
+            const prenotationsRef = db.collection('prenotazioni');
+            const snapshot2 = await prenotationsRef.get();
+            if (snapshot2.empty) {
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'No Prenotations Found' }));
+                return;
+            }
+
+            let prenotations = [];
+            snapshot2.forEach(doc => {
+                prenotations.push(doc.data());
+            });
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(articles));
+        } catch (error) {
+            console.error('Error getting documents: ', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Error getting articles' }));
+        }
     } else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
