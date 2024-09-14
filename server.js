@@ -152,11 +152,11 @@ const requestHandler = async (req, res) => {
             });
 
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(articles));
+            res.end(JSON.stringify(prenotations));
         } catch (error) {
             console.error('Error getting documents: ', error);
             res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Error getting articles' }));
+            res.end(JSON.stringify({ error: 'Error getting prenotations' }));
         }
     } else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
