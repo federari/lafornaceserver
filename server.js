@@ -194,21 +194,22 @@ const requestHandler = async (req, res) => {
         }
     } else if (req.url === '/uploadImage' && req.method === 'POST') {
         setCorsHeaders(res);
-        // Usa multer per gestire l'upload del file
         upload.single('immagine')(req, res, async function(err) {
             if (err) {
+                console.error('Error during file upload:', err);
                 res.writeHead(500, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: 'Error uploading image' }));
                 return;
             }
-
+    
+            console.log('File received:', req.file); // Aggiungi questo log per vedere se multer riceve il file
+    
             try {
-                // Carica l'immagine su Firebase Storage
                 const publicUrl = await uploadImageToFirebase(req.file);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ imageUrl: publicUrl }));
             } catch (error) {
-                console.error('Error uploading image: ', error);
+                console.error('Error uploading image to Firebase:', error);
                 res.writeHead(500, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: 'Error saving image' }));
             }
