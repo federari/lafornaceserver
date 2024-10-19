@@ -2,6 +2,8 @@ const http = require('http');
 require('dotenv').config();
 const admin = require('firebase-admin');
 const path = require('path');
+const multer = require('multer'); // Per gestire l'upload di file
+const { Storage } = require('@google-cloud/storage');
 
 // Inizializza l'app Firebase
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -13,12 +15,44 @@ admin.initializeApp({
 const db = admin.firestore();
 const port = process.env.PORT || 3000;
 
+
+// Configura multer per gestire l'upload
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 } // Limite di 10MB per le immagini
+  });
+
 // Configura CORS
 const setCorsHeaders = (res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
     res.setHeader('Access-Control-Allow-Credentials', true);
+};
+
+
+const uploadImageToFirebase = (file) => {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            reject('No file uploaded');
+        }
+        const blob = bucket.file(`images/${Date.now()}_${file.originalname}`);
+        const blobStream = blob.createWriteStream({
+            resumable: false,
+        });
+
+        blobStream.on('error', (err) => {
+            reject(err);
+        });
+
+        blobStream.on('finish', async () => {
+            // Ottieni l'URL pubblico
+            const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+            resolve(publicUrl);
+        });
+
+        blobStream.end(file.buffer);
+    });
 };
 
 const requestHandler = async (req, res) => {
@@ -158,6 +192,26 @@ const requestHandler = async (req, res) => {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Error getting prenotations' }));
         }
+    } else if (req.url === '/uploadImage' && req.method === 'POST') {
+        // Usa multer per gestire l'upload del file
+        upload.single('immagine')(req, res, async function(err) {
+            if (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Error uploading image' }));
+                return;
+            }
+
+            try {
+                // Carica l'immagine su Firebase Storage
+                const publicUrl = await uploadImageToFirebase(req.file);
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ imageUrl: publicUrl }));
+            } catch (error) {
+                console.error('Error uploading image: ', error);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Error saving image' }));
+            }
+        });
     } else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
