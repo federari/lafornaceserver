@@ -5,7 +5,7 @@ const path = require('path');
 const multer = require('multer'); // Per gestire l'upload di file
 const { Storage } = require('@google-cloud/storage');
 
-// Inizializza l'app Firebase
+// Inizializza l'app di Firebase
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
