@@ -9,10 +9,12 @@ const { Storage } = require('@google-cloud/storage');
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET
 });
 
 const db = admin.firestore();
+const bucket = admin.storage().bucket();
 const port = process.env.PORT || 3000;
 
 
