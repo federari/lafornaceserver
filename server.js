@@ -49,7 +49,7 @@ const uploadImageToFirebase = (file) => {
 
         blobStream.on('finish', async () => {
             // Ottieni l'URL pubblico
-            const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+            const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${blob.name}`;
             resolve(publicUrl);
         });
 
