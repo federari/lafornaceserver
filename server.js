@@ -193,6 +193,7 @@ const requestHandler = async (req, res) => {
             res.end(JSON.stringify({ error: 'Error getting prenotations' }));
         }
     } else if (req.url === '/uploadImage' && req.method === 'POST') {
+        setCorsHeaders(res);
         // Usa multer per gestire l'upload del file
         upload.single('immagine')(req, res, async function(err) {
             if (err) {
