@@ -27,6 +27,7 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 } // Limite di 10MB per le immagini
 });
 
+
 // Configura CORS
 const setCorsHeaders = (res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
