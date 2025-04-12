@@ -14,7 +14,7 @@
     "firebase-admin": "^12.2.0",
     "get-intrinsic": "1.2.1",
     "gopd": "1.0.1",
-    "html-entities": "^2.3.3",
+    "html-entities": "^2.5.2",
     "multer": "^1.4.5-lts.1",
     "qs": "^6.11.0",
     "side-channel": "1.0.4"
