@@ -12,6 +12,7 @@ admin.initializeApp({
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET
 });
 
+
 const db = admin.firestore();
 const bucket = admin.storage().bucket();
 const app = express();
